@@ -608,6 +608,7 @@ class GRPOTrainer(Trainer):
         for i, (reward_func, reward_processing_class) in enumerate(
             zip(self.reward_funcs, self.reward_processing_classes)
         ):
+            print("DDDDDD",reward_func)
             if isinstance(reward_func, nn.Module):  # Module instead of PretrainedModel for compat with compiled models
                 if is_conversational(inputs[0]):
                     messages = [{"messages": p + c} for p, c in zip(prompts, completions)]
