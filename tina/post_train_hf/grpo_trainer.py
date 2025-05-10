@@ -214,6 +214,7 @@ class GRPOTrainer(Trainer):
             model_name = model if isinstance(model, str) else model.config._name_or_path
             model_name = model_name.split("/")[-1]
             args = GRPOConfig(f"{model_name}-GRPO")
+            args.logging_steps=1
 
         # Models
         # Trained model
