@@ -8,6 +8,7 @@ from transformers import set_seed, AutoModelForCausalLM, AutoTokenizer
 from tina.post_train_hf.grpo_trainer import GRPOTrainer
 from latex2sympy2_extended import NormalizationConfig
 import numpy as np
+import xladder
 
 modnom = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 
@@ -114,6 +115,8 @@ tokenizer.pad_token = "<|fim_pad|>" # for Qwen
 tokenizer.chat_template = REASON_CHAT_TEMPLATE
 
 model = AutoModelForCausalLM.from_pretrained(modnom, torch_dtype=torch.bfloat16) #, attn_implementation="flash_attention_2", use_cache=False)
+xladder.addLadder(model, 128, 4)
+
 rl_reward_funcs = [accuracy_reward, format_reward]
 reward_weights = (1.0, 2.0)
 

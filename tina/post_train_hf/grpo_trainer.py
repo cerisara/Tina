@@ -592,18 +592,17 @@ class GRPOTrainer(Trainer):
                     self.ref_model, prompt_completion_ids, attention_mask, logits_to_keep
                 )
             else:
-                with self.accelerator.unwrap_model(self.model) as mod:
-                    if hasattr(mod, "ladder"):
-                        mod.ladder.debugmode=True
+                if hasattr(self.model, "ladder"):
+                    self.model.ladder.debugmode=True
+                    ref_per_token_logps = self._get_per_token_logps(
+                        self.model, prompt_completion_ids, attention_mask, logits_to_keep
+                    )
+                    self.model.ladder.debugmode=False
+                else:
+                    with self.accelerator.unwrap_model(self.model).disable_adapter():
                         ref_per_token_logps = self._get_per_token_logps(
                             self.model, prompt_completion_ids, attention_mask, logits_to_keep
                         )
-                        mod.ladder.debugmode=False
-                    else:
-                        with self.accelerator.unwrap_model(self.model).disable_adapter():
-                            ref_per_token_logps = self._get_per_token_logps(
-                                self.model, prompt_completion_ids, attention_mask, logits_to_keep
-                            )
 
         # Decode the generated completions
         completions_text = self.processing_class.batch_decode(completion_ids, skip_special_tokens=True)
