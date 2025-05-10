@@ -6,6 +6,8 @@ from datasets import Dataset, load_dataset
 from datetime import datetime
 from transformers import set_seed, AutoModelForCausalLM, AutoTokenizer
 from tina.post_train_hf.grpo_trainer import GRPOTrainer
+from latex2sympy2_extended import NormalizationConfig
+import numpy as np
 
 modnom = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 
@@ -80,7 +82,6 @@ def format_reward(completions, **kwargs):
 class GradientClippingLoggerCallback(TrainerCallback):
     def on_step_end(self, args, state, control, model=None, processing_class=None, **kwargs):
         self.clipped_grad_norm = np.sqrt(sum(p.grad.data.norm(2).item() ** 2 for p in model.parameters() if p.grad is not None))
-        wandb.log({"clipped_grad_norm": self.clipped_grad_norm})
 
     def on_log(self, args, state, control, logs=None, **kwargs):
         if logs is not None:
@@ -113,7 +114,7 @@ tokenizer.pad_token = "<|fim_pad|>" # for Qwen
 tokenizer.chat_template = REASON_CHAT_TEMPLATE
 
 model = AutoModelForCausalLM.from_pretrained(modnom, torch_dtype=torch.bfloat16) #, attn_implementation="flash_attention_2", use_cache=False)
-rl_reward_funcs = (accuracy_reward, format_reward)
+rl_reward_funcs = [accuracy_reward, format_reward]
 reward_weights = (1.0, 2.0)
 
 callbacks = [
