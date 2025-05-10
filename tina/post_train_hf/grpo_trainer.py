@@ -250,6 +250,9 @@ class GRPOTrainer(Trainer):
         # Reference model
         if is_deepspeed_zero3_enabled():
             self.ref_model = AutoModelForCausalLM.from_pretrained(model_id, **model_init_kwargs)
+        elif hasattr(model, 'ladder'):
+            # If LADDER is used, do just like with PEFT
+            self.ref_model = None
         elif not is_peft_model(model):
             # If PEFT configuration is not provided, create a reference model based on the initial model.
             self.ref_model = create_reference_model(model)
@@ -589,10 +592,18 @@ class GRPOTrainer(Trainer):
                     self.ref_model, prompt_completion_ids, attention_mask, logits_to_keep
                 )
             else:
-                with self.accelerator.unwrap_model(self.model).disable_adapter():
-                    ref_per_token_logps = self._get_per_token_logps(
-                        self.model, prompt_completion_ids, attention_mask, logits_to_keep
-                    )
+                with self.accelerator.unwrap_model(self.model) as mod:
+                    if hasattr(mod, "ladder"):
+                        mod.ladder.debugmode=True
+                        ref_per_token_logps = self._get_per_token_logps(
+                            self.model, prompt_completion_ids, attention_mask, logits_to_keep
+                        )
+                        mod.ladder.debugmode=False
+                    else:
+                        with self.accelerator.unwrap_model(self.model).disable_adapter():
+                            ref_per_token_logps = self._get_per_token_logps(
+                                self.model, prompt_completion_ids, attention_mask, logits_to_keep
+                            )
 
         # Decode the generated completions
         completions_text = self.processing_class.batch_decode(completion_ids, skip_special_tokens=True)
@@ -608,7 +619,6 @@ class GRPOTrainer(Trainer):
         for i, (reward_func, reward_processing_class) in enumerate(
             zip(self.reward_funcs, self.reward_processing_classes)
         ):
-            print("DDDDDD",reward_func)
             if isinstance(reward_func, nn.Module):  # Module instead of PretrainedModel for compat with compiled models
                 if is_conversational(inputs[0]):
                     messages = [{"messages": p + c} for p, c in zip(prompts, completions)]

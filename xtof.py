@@ -130,3 +130,27 @@ trainer = GRPOTrainer(
 
 train_result = trainer.train()
 
+
+exit()
+
+"""
+# Etude de GRPOTrainer:
+
+_get_train_sampler()
+_get_eval_sampler() 
+_get_per_token_logps() : get log-prob per token
+_prepare_inputs() :
+    tokenize prompt
+    generate completion
+    compute logits for completion with ref LLM
+    compute reward on completion
+    compute group rewards and then advantages
+compute_loss : 
+    call get log-prob per token
+    calc KL(logprob(ref), logprob(model))
+    loss = KL + advantages + log-prob
+prediction_step :
+    call _prepare_inputs & compute_loss
+
+"""
+
