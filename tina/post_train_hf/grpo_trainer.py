@@ -589,6 +589,7 @@ class GRPOTrainer(Trainer):
                     self.ref_model, prompt_completion_ids, attention_mask, logits_to_keep
                 )
             else:
+                # TODO detson: disable ladder here
                 with self.accelerator.unwrap_model(self.model).disable_adapter():
                     ref_per_token_logps = self._get_per_token_logps(
                         self.model, prompt_completion_ids, attention_mask, logits_to_keep
