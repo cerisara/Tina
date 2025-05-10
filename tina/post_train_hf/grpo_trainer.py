@@ -523,6 +523,7 @@ class GRPOTrainer(Trainer):
                 unwrapped_model.unmerge_adapter()
 
     def _prepare_inputs(self, inputs: dict[str, Union[torch.Tensor, Any]]) -> dict[str, Union[torch.Tensor, Any]]:
+        # called by trainer.training_step()
         device = self.accelerator.device
         prompts = [x["prompt"] for x in inputs]
         prompts_text = [maybe_apply_chat_template(example, self.processing_class)["prompt"] for example in inputs]
@@ -594,11 +595,11 @@ class GRPOTrainer(Trainer):
                 )
             else:
                 if hasattr(self.model, "ladder"):
-                    self.model.ladder.debugmode=True
+                    self.model.ladder.debug=True
                     ref_per_token_logps = self._get_per_token_logps(
                         self.model, prompt_completion_ids, attention_mask, logits_to_keep
                     )
-                    self.model.ladder.debugmode=False
+                    self.model.ladder.debug=False
                 else:
                     with self.accelerator.unwrap_model(self.model).disable_adapter():
                         ref_per_token_logps = self._get_per_token_logps(
