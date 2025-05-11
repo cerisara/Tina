@@ -156,7 +156,6 @@ def _addLadder(mod):
     global detladder, detladders
     detladder = Ladder()
     detladder.attmask = None # dont know yet the attmask: dont forget to set it before calling mod.forward() !!
-    detladder.to(dev)
     detladders.append(detladder)
     if len(detladders)==1:
         # first ladder added to the model
@@ -173,6 +172,7 @@ def addLadder(mod,h1,nl):
     detladder.createRandom(mod.config.hidden_size,h1,nl)
     detladder.nom = "_"+str(h1)+"_"+str(nl) 
     detladder.testtime = False
+    detladder.to(dev)
     print("added ladder size",sum([p.numel() for p in detladder.parameters()]))
 
 def loadandAddLadder(mod,fich):
@@ -182,5 +182,6 @@ def loadandAddLadder(mod,fich):
     detladder.h1 = detladder.dproj.weight.shape[0]
     detladder.nom = fich 
     detladder.testtime = True
+    detladder.to(dev)
     print("loaded ladder size",sum([p.numel() for p in detladder.parameters()]))
 
