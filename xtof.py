@@ -155,5 +155,7 @@ compute_loss :
 prediction_step :
     call _prepare_inputs & compute_loss
 
+Le Trainer appelle/loop: _prepare_inputs() puis compute_loss() puis backward/update.
+
 """
 
