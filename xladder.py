@@ -56,7 +56,10 @@ class Ladder(nn.Module):
         self.wq = nn.ModuleList(wq)
         self.wk = nn.ModuleList(wk)
         self.wv = nn.ModuleList(wv)
-        # self.lnorm = nn.LayerNorm(h1,elementwise_affine=False)
+        with torch.no_grad():
+            # init conservatrice
+            self.uproj.weight.zero_()
+            self.uproj.bias.zero_()
  
     def detsave(self, fnom):
         with open(fnom,"wb") as f:
