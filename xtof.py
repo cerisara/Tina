@@ -90,7 +90,10 @@ class GradientClippingLoggerCallback(TrainerCallback):
             logs["clipped_grad_norm"] = self.clipped_grad_norm
 
 model_post_train_dataset_name = "knoveleng/open-s1"
+model_post_train_dataset_name = "knoveleng/open-rs"
 train_dataset = load_dataset(model_post_train_dataset_name, split="train")
+print("initial dataset",train_dataset)
+
 # required by GRPOTrainer: (prompt, solution) columns
 if 'solution' not in train_dataset.column_names and 'answer' in train_dataset.column_names:
     train_dataset = train_dataset.rename_column('answer', 'solution')
@@ -108,8 +111,9 @@ if 'problem' not in train_dataset.column_names and 'prompt' in train_dataset.col
 if "messages" in train_dataset.column_names:
     train_dataset = train_dataset.remove_columns("messages")
 
+print("prem dataset",train_dataset)
 train_dataset = train_dataset.map(make_conv_for_grpo, fn_kwargs={"system_prompt": SYSTEM_PROMPT})
-
+print("sec dataset",train_dataset)
 
 tokenizer = AutoTokenizer.from_pretrained(modnom)
 tokenizer.padding_side  = 'left'
@@ -128,8 +132,9 @@ callbacks = [
         ]
 
 args = GRPOConfig()
-args.max_completion_length = 3584
+args.max_completion_length = 1
 args.logging_steps = 1
+args.num_train_epoch = 1
 
 trainer = GRPOTrainer(
         model=model,
