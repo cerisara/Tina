@@ -112,11 +112,11 @@ train_dataset = train_dataset.map(make_conv_for_grpo, fn_kwargs={"system_prompt"
 
 
 tokenizer = AutoTokenizer.from_pretrained(modnom)
+tokenizer.padding_side  = 'left'
 tokenizer.pad_token = "<|fim_pad|>" # for Qwen
 tokenizer.chat_template = REASON_CHAT_TEMPLATE
 
-model = AutoModelForCausalLM.from_pretrained(modnom, torch_dtype=torch.bfloat16, attn_implementation="flash_attention_2")
-# model = AutoModelForCausalLM.from_pretrained(modnom, load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16, attn_implementation="flash_attention_2")
+model = AutoModelForCausalLM.from_pretrained(modnom, load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16) #, attn_implementation="flash_attention_2")
                                              # torch_dtype=torch.bfloat16) #, attn_implementation="flash_attention_2", use_cache=False)
 xladder.addLadder(model, 128, 4)
 
