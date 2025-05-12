@@ -132,7 +132,7 @@ callbacks = [
         ]
 
 args = GRPOConfig()
-args.max_completion_length = 1
+args.max_completion_length = 3584
 args.logging_steps = 1
 args.num_train_epoch = 1
 
