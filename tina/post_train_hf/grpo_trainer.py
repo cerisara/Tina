@@ -530,6 +530,9 @@ class GRPOTrainer(Trainer):
         prompt_inputs = self.processing_class(
             prompts_text, return_tensors="pt", padding=True, padding_side="left", add_special_tokens=False
         )
+        # chaque batch contient 8x le meme prompt, pour avoir group = 8x generations differentes par sample
+        print("detinputtoks",prompt_inputs['input_ids'][0])
+        print("detinputtxt",self.processing_class.decode(prompt_inputs['input_ids'][0]))
         prompt_inputs = super()._prepare_inputs(prompt_inputs)
         prompt_ids, prompt_mask = prompt_inputs["input_ids"], prompt_inputs["attention_mask"]
 
